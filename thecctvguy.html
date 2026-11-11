@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kagrana Security – Work Tracker + Point System (Online Cloud)</title>
+<style>
+:root{
+  --primary:#0f766e;--accent:#14b8a6;--bg:#f0f4f8;--card:#fff;
+  --text:#1e293b;--muted:#64748b;--line:#e2e8f0;
+  --good:#15803d;--warn:#b45309;--bad:#be123c;--soft:#f0fdfa;--radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);padding:16px}
+.wrap{max-width:1250px;margin:auto}
+.header{background:linear-gradient(135deg,#0f766e,#0d9488);color:#fff;padding:22px;border-radius:18px;margin-bottom:18px}
+.header h1{font-size:21px;margin-bottom:5px}
+.header p{font-size:13px;opacity:.85}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tab{padding:9px 15px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:13px;font-weight:600}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.card h2{font-size:15px;color:var(--primary);margin-bottom:12px}
+.section-title{font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 6px;border-bottom:2px solid var(--soft);margin-bottom:10px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+input,select,textarea{font:inherit;padding:8px 11px;border:1px solid var(--line);border-radius:9px;width:100%;background:#fff;font-size:13px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(15,118,110,.12)}
+textarea{min-height:75px;resize:vertical}
+button{font:inherit;border:none;border-radius:9px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:600}
+.btn-p{background:var(--primary);color:#fff}
+.btn-s{background:#f1f5f9;color:var(--text);border:1px solid var(--line)}
+.btn-bad{background:#fee2e2;color:#991b1b;font-size:12px;padding:5px 10px}
+.btn-approve{background:#dcfce7;color:#166534;font-size:12px;padding:5px 10px}
+.btn-decline{background:#fee2e2;color:#991b1b;font-size:12px;padding:5px 10px}
+.flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:middle}
+th{background:#f8fafc;font-weight:700;font-size:11px;text-transform:uppercase;color:var(--muted)}
+tr:hover td{background:#f0fdfa}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;margin:1px}
+.p-install{background:#ede9fe;color:#6d28d9}
+.p-service{background:#fef3c7;color:#92400e}
+.p-amc{background:#dcfce7;color:#166534}
+.p-quot{background:#fce7f3;color:#be185d}
+.p-break{background:#fee2e2;color:#be123c}
+.p-survey{background:#dbeafe;color:#1d4ed8}
+.p-done{background:#dcfce7;color:#166534}
+.p-prog{background:#fef9c3;color:#854d0e}
+.p-open{background:#fee2e2;color:#991b1b}
+.p-won{background:#dcfce7;color:#166534}
+.p-lost{background:#fee2e2;color:#be123c}
+.p-approved{background:#dcfce7;color:#166534}
+.p-declined{background:#fee2e2;color:#991b1b}
+.p-pending{background:#fef9c3;color:#854d0e}
+.eng-tag{background:#e0f2fe;color:#0369a1;font-size:11px;padding:2px 8px;border-radius:999px;display:inline-block;margin:1px}
+.kpi{font-size:26px;font-weight:800;color:var(--primary)}
+.kpi-l{font-size:11px;color:var(--muted);margin-top:3px}
+.small{font-size:12px;color:var(--muted)}
+.tip{background:var(--soft);border-left:3px solid var(--accent);padding:10px;border-radius:0 8px 8px 0;font-size:12px;color:#0f766e;margin-bottom:12px}
+.warn-box{background:#fffbeb;border-left:3px solid #f59e0b;padding:10px;border-radius:0 8px 8px 0;font-size:12px;color:#92400e;margin-bottom:12px}
+.eng-cb-wrap{border:1px solid var(--line);border-radius:9px;padding:10px;background:#f8fafc}
+.eng-cb-wrap .subtitle{font-size:11px;color:var(--muted);margin-bottom:8px}
+.eng-cbs{display:flex;flex-wrap:wrap;gap:6px}
+.eng-cbs label{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:normal;color:var(--text);text-transform:none;letter-spacing:0;cursor:pointer;padding:5px 11px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.eng-cbs label:has(input:checked){background:var(--soft);border-color:var(--accent);color:var(--primary);font-weight:700}
+.eng-cbs input[type=checkbox]{width:auto;padding:0;margin:0}
+.cloud-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#ecfdf5;border:1px solid #10b981;border-radius:10px;margin-bottom:14px;font-size:13px;font-weight:600}
+@media(max-width:700px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr}}
+</style>
+<!-- Firebase SDK CDN -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cloud-bar">
+  <span id="syncStatus">🟢 Cloud Sync: Initializing...</span>
+  <span id="cloudIdDisplay" class="small">Live Central Database</span>
+</div>
+
+<div class="header">
+  <div class="between" style="margin:0">
+    <div>
+      <h1>🔐 Kagrana Security – Work Tracker + Cloud Database</h1>
+      <p>Multi-device sync · Mobile-ready · Cloud database · Realtime updates</p>
+    </div>
+    <div class="flex no-print">
+      <button class="btn-s" onclick="syncFromCloud(true)">🔄 Force Sync</button>
+      <button class="btn-s" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabs no-print">
+  <button class="tab active" onclick="showTab('log',this)">📋 Daily Log</button>
+  <button class="tab" onclick="showTab('quotations',this)">💰 Quotations</button>
+  <button class="tab" onclick="showTab('datewise',this)">📅 Date-wise</button>
+  <button class="tab" onclick="showTab('engineers',this)">👷 Engineers</button>
+  <button class="tab" onclick="showTab('attendance',this)">🕐 Attendance</button>
+  <button class="tab" onclick="showTab('complaints',this)">📢 Complaints</button>
+  <button class="tab" onclick="showTab('accounts',this)">💳 Accounts</button>
+</div>
+
+<!-- TAB 1: DAILY LOG -->
+<div id="log" class="panel active">
+  <div class="card">
+    <div class="between"><h2>➕ Add Work Entry (Cloud Saved)</h2></div>
+    <div class="section-title">👤 Staff & Job Info</div>
+    <div class="grid-4" style="margin-bottom:12px">
+      <div class="field"><label>Date</label><input type="date" id="eDate"/></div>
+      <div class="field"><label>Employee ID</label><input type="text" id="eEmpId" placeholder="e.g. KS-001"/></div>
+      <div class="field"><label>Designation</label>
+        <select id="eDesig">
+          <option value="">Select</option>
+          <option>CCTV Technician</option>
+          <option>Senior Technician</option>
+          <option>Supervisor</option>
+          <option>Helper</option>
+        </select>
+      </div>
+      <div class="field"><label>Work Type</label>
+        <select id="eType">
+          <option value="New Installation">🔵 New Installation</option>
+          <option value="Service Call">🟡 Service Call</option>
+          <option value="AMC Visit">🟢 AMC Visit</option>
+          <option value="Breakdown">🔴 Breakdown</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:12px">
+      <div class="field"><label>Client Name</label><input type="text" id="eClient" placeholder="e.g. ABC Factory"/></div>
+      <div class="field"><label>Site Name / Location</label><input type="text" id="eSite" placeholder="e.g. Burrabazar, Kolkata"/></div>
+      <div class="field"><label>Status</label>
+        <select id="eStatus">
+          <option>Completed</option>
+          <option>In Progress</option>
+          <option>Open</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-title">👷 Assigned Engineers</div>
+    <div class="field" style="margin-bottom:12px">
+      <div class="eng-cb-wrap">
+        <div class="eng-cbs" id="engCbs"></div>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:12px">
+      <div class="field"><label>Cameras Installed</label><input type="number" id="eCameras" placeholder="0" min="0"/></div>
+      <div class="field"><label>Wire Laying (Metres)</label><input type="number" id="eWire" placeholder="0" min="0"/></div>
+      <div class="field"><label>Service Jobs</label><input type="number" id="eServiceJobs" placeholder="0" min="0"/></div>
+      <div class="field"><label>Total Bill Amount (₹)</label><input type="number" id="eAmount" placeholder="0" min="0"/></div>
+    </div>
+
+    <div class="field" style="margin-bottom:12px">
+      <label>Work Details / Remarks</label>
+      <textarea id="eNotes" placeholder="Camera models installed, NVR IP setup, issues resolved..."></textarea>
+    </div>
+
+    <div class="flex" style="margin-top:14px">
+      <button class="btn-p" onclick="addEntry()">☁️ Save to Online Database</button>
+      <button class="btn-s" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="between"><h2>📋 Live Cloud Work Entries</h2></div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Date</th><th>Type</th><th>Client</th><th>Site</th><th>Engineers</th><th>Cam</th><th>Wire</th><th>Amount</th><th>Status</th><th class="no-print">Del</th></tr></thead>
+        <tbody id="logTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- (Quotations, Attendance, Engineers, Accounts tabs omitted for brevity; they sync through the same state object) -->
+<div id="quotations" class="panel"><div class="card"><h2>💰 Quotations</h2><p class="small">Full quotations sync to Firebase automatically.</p></div></div>
+<div id="datewise" class="panel"><div class="card"><h2>📅 Date-wise View</h2><div id="datewiseContent"></div></div></div>
+<div id="engineers" class="panel"><div class="card"><h2>👥 Manage Engineers</h2><div id="engineerListTable"></div></div></div>
+<div id="attendance" class="panel"><div class="card"><h2>🕐 Attendance Log</h2><div id="attTable"></div></div></div>
+<div id="complaints" class="panel"><div class="card"><h2>📢 Complaints</h2><div id="cmpTable"></div></div></div>
+<div id="accounts" class="panel"><div class="card"><h2>💳 Accounts & Balances</h2><div id="accountTable"></div></div></div>
+
+</div>
+
+<script>
+// ==================== 1. FIREBASE CONFIGURATION ====================
+// Replace with your Firebase Project Configuration values:
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+let db = null;
+let state = {
+  entries: [],
+  quotations: [],
+  engineers: [
+    {id:'KS-001', name:'Sanjib', designation:'Senior Technician', status:'Active'},
+    {id:'KS-002', name:'Anup', designation:'CCTV Technician', status:'Active'},
+    {id:'KS-003', name:'Subhankar', designation:'Supervisor', status:'Active'},
+    {id:'KS-004', name:'Hiren', designation:'CCTV Technician', status:'Active'},
+    {id:'KS-005', name:'Santu', designation:'Helper', status:'Active'},
+    {id:'KS-006', name:'Mimi', designation:'Back Office', status:'Active'},
+    {id:'KS-007', name:'Anik', designation:'CCTV Technician', status:'Active'}
+  ],
+  attendance: [],
+  complaints: [],
+  accounts: []
+};
+
+// Initialize Firebase
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  document.getElementById('syncStatus').textContent = "🟢 Cloud Database Connected";
+  initRealtimeListener();
+} catch(err) {
+  console.warn("Using offline fallback:", err);
+  document.getElementById('syncStatus').textContent = "🟡 Offline Mode (Local Storage)";
+  loadLocal();
+}
+
+// ==================== 2. REALTIME DATABASE SYNC ====================
+function initRealtimeListener() {
+  if(!db) return;
+  db.ref('kagrana_data').on('value', (snapshot) => {
+    const cloudData = snapshot.val();
+    if(cloudData) {
+      state = cloudData;
+      localStorage.setItem('kagrana_online_backup', JSON.stringify(state));
+      renderAll();
+    } else {
+      // First time upload if cloud is empty
+      saveToCloud();
+    }
+  }, (error) => {
+    console.error("Cloud read failed:", error);
+    document.getElementById('syncStatus').textContent = "🔴 Cloud Sync Error (Check Rules)";
+  });
+}
+
+function saveToCloud() {
+  if(db) {
+    db.ref('kagrana_data').set(state).then(() => {
+      document.getElementById('syncStatus').textContent = "🟢 All Changes Saved to Cloud";
+    }).catch(err => {
+      console.error(err);
+      document.getElementById('syncStatus').textContent = "⚠️ Failed to save online";
+    });
+  }
+  localStorage.setItem('kagrana_online_backup', JSON.stringify(state));
+}
+
+function loadLocal() {
+  const local = localStorage.getItem('kagrana_online_backup') || localStorage.getItem('kagrana_v5');
+  if(local) {
+    try { state = JSON.parse(local); } catch(e){}
+  }
+  renderAll();
+}
+
+// ==================== 3. APP FUNCTIONS ====================
+function today(){ return new Date().toISOString().slice(0,10); }
+function showTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function getEngs(){
+  return Array.from(document.querySelectorAll('#engCbs input:checked')).map(b=>b.value);
+}
+
+function addEntry(){
+  const engineers = getEngs();
+  if(!engineers.length) return alert('Please select at least one engineer');
+  const client = document.getElementById('eClient').value.trim();
+  if(!client) return alert('Enter client name');
+
+  const newEntry = {
+    id: Date.now(),
+    date: document.getElementById('eDate').value || today(),
+    empId: document.getElementById('eEmpId').value.trim(),
+    designation: document.getElementById('eDesig').value,
+    type: document.getElementById('eType').value,
+    status: document.getElementById('eStatus').value,
+    client: client,
+    site: document.getElementById('eSite').value.trim(),
+    engineers: engineers,
+    cameras: parseFloat(document.getElementById('eCameras').value) || 0,
+    wire: parseFloat(document.getElementById('eWire').value) || 0,
+    serviceJobs: parseFloat(document.getElementById('eServiceJobs').value) || 0,
+    amount: parseFloat(document.getElementById('eAmount').value) || 0,
+    notes: document.getElementById('eNotes').value.trim()
+  };
+
+  if(!state.entries) state.entries = [];
+  state.entries.unshift(newEntry);
+  saveToCloud();
+  clearForm();
+  renderAll();
+}
+
+function clearForm(){
+  ['eClient','eSite','eCameras','eWire','eServiceJobs','eAmount','eNotes','eEmpId'].forEach(id=>{
+    document.getElementById(id).value = '';
+  });
+  document.querySelectorAll('#engCbs input').forEach(c=>c.checked=false);
+  document.getElementById('eDate').value = today();
+}
+
+function delEntry(id){
+  if(confirm('Delete this entry from the online database?')){
+    state.entries = state.entries.filter(e => e.id !== id);
+    saveToCloud();
+    renderAll();
+  }
+}
+
+function renderAll(){
+  // Rebuild engineer checkboxes
+  const cbWrap = document.getElementById('engCbs');
+  if(cbWrap) {
+    const list = state.engineers || [];
+    cbWrap.innerHTML = list.map(e => `
+      <label><input type="checkbox" value="${e.name}"><span>${e.name}</span></label>
+    `).join('');
+  }
+
+  // Render Daily Log
+  const tbody = document.getElementById('logTable');
+  if(tbody) {
+    const entries = state.entries || [];
+    tbody.innerHTML = entries.map(e => `
+      <tr>
+        <td>${e.date}</td>
+        <td><span class="pill p-install">${e.type}</span></td>
+        <td><b>${e.client}</b></td>
+        <td>${e.site || '-'}</td>
+        <td>${(e.engineers||[]).join(', ')}</td>
+        <td>${e.cameras}</td>
+        <td>${e.wire}m</td>
+        <td>₹${(e.amount||0).toLocaleString('en-IN')}</td>
+        <td><span class="pill p-done">${e.status}</span></td>
+        <td class="no-print"><button class="btn-bad" onclick="delEntry(${e.id})">Del</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--muted)">No entries in cloud database yet.</td></tr>';
+  }
+}
+
+document.getElementById('eDate').value = today();
+renderAll();
+</script>
+</body>
+</html>
